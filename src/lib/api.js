@@ -68,8 +68,9 @@ export function createItem(payload) {
   })
 }
 
-export function getItems() {
-  return request('/inventory/')
+export function getItems(itemType = '') {
+  const query = itemType ? `?item_type=${encodeURIComponent(itemType)}` : ''
+  return request(`/inventory/${query}`)
 }
 
 export function getCustomers() {
@@ -116,9 +117,20 @@ export function getSalesDCs() {
   return request('/sales-dc/')
 }
 
+export function getSalesDCById(id) {
+  return request(`/sales-dc/${id}`)
+}
+
 export function createSalesDC(payload) {
   return request('/sales-dc/', {
     method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function updateSalesDC(id, payload) {
+  return request(`/sales-dc/${id}`, {
+    method: 'PUT',
     body: JSON.stringify(payload),
   })
 }
@@ -155,6 +167,10 @@ export function getSaleInvoices() {
   return request('/sale-invoice/')
 }
 
+export function getSaleInvoiceById(id) {
+  return request(`/sale-invoice/${id}`)
+}
+
 export function createSaleInvoice(payload) {
   return request('/sale-invoice/', {
     method: 'POST',
@@ -186,4 +202,14 @@ export async function loginUser(payload) {
 
 export function getCurrentUser() {
   return request('/auth/me')
+}
+export function getCompanyInfo() {
+  return request('/company/')
+}
+
+export function saveCompanyInfo(payload) {
+  return request('/company/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 }

@@ -4,8 +4,8 @@ import {
   PageContainer, SectionCard, FormGrid, FormInput,
   SelectDropdown, Textarea, DatePicker, ActionButtons
 } from '../../components/ui/index'
-import { FileText, List } from 'lucide-react'
-import { createSalesDC, getCustomers, getItems } from '../../lib/api'
+import { FileText, List, Printer } from 'lucide-react'
+import { createSalesDC, getCustomers, getItems, getSalesDCById, updateSalesDC } from '../../lib/api'
 
 function getTodayDate() {
   const now = new Date()
@@ -15,6 +15,18 @@ function getTodayDate() {
   return `${year}-${month}-${day}`
 }
 
+function emptyRow() {
+  return {
+    itemName: '',
+    itemCode: '',
+    quantity: '',
+    unit: '',
+    rate: '',
+    amount: '',
+    hsnCode: '',
+  }
+}
+
 function ItemsTable({ rows, onAdd, onRemove, onChange, itemOptions = [], salesMode = false }) {
   return (
     <div>
@@ -22,8 +34,8 @@ function ItemsTable({ rows, onAdd, onRemove, onChange, itemOptions = [], salesMo
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-slate-50">
-              {['Item Name', 'Item Code', 'Quantity', 'Unit', 'Rate', 'Amount'].map(h => (
-                <th key={h} className="px-3 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{h}</th>
+              {['Item Name', 'Item Code', 'HSN', 'Quantity', 'Unit', 'Rate', 'Amount'].map((header) => (
+                <th key={header} className="px-3 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">{header}</th>
               ))}
               <th className="w-10" />
             </tr>
@@ -31,13 +43,13 @@ function ItemsTable({ rows, onAdd, onRemove, onChange, itemOptions = [], salesMo
           <tbody>
             {rows.map((row, i) => (
               <tr key={i} className="border-t border-slate-100">
-                {['itemName', 'itemCode', 'quantity', 'unit', 'rate', 'amount'].map(k => {
-                  if (salesMode && k === 'itemCode') {
+                {['itemName', 'itemCode', 'hsnCode', 'quantity', 'unit', 'rate', 'amount'].map((key) => {
+                  if (salesMode && key === 'itemCode') {
                     return (
-                      <td key={k} className="px-2 py-1.5">
+                      <td key={key} className="px-2 py-1.5">
                         <select
-                          value={row[k] || ''}
-                          onChange={e => onChange(i, k, e.target.value)}
+                          value={row[key] || ''}
+                          onChange={(event) => onChange(i, key, event.target.value)}
                           className="w-full px-2 py-1 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-400 min-w-[120px]"
                         >
                           <option value="">Select item</option>
@@ -50,19 +62,19 @@ function ItemsTable({ rows, onAdd, onRemove, onChange, itemOptions = [], salesMo
                   }
 
                   return (
-                    <td key={k} className="px-2 py-1.5">
+                    <td key={key} className="px-2 py-1.5">
                       <input
-                        type={['quantity', 'rate', 'amount'].includes(k) ? 'number' : 'text'}
-                        value={row[k] || ''}
-                        onChange={e => onChange(i, k, e.target.value)}
-                        readOnly={salesMode && ['itemName', 'unit', 'amount'].includes(k)}
+                        type={['quantity', 'rate', 'amount'].includes(key) ? 'number' : 'text'}
+                        value={row[key] || ''}
+                        onChange={(event) => onChange(i, key, event.target.value)}
+                        readOnly={salesMode && ['itemName', 'hsnCode', 'unit', 'amount'].includes(key)}
                         className="w-full px-2 py-1 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-400 min-w-[80px]"
                       />
                     </td>
                   )
                 })}
                 <td className="px-2 py-1.5">
-                  <button onClick={() => onRemove(i)} className="text-slate-300 hover:text-red-400">✕</button>
+                  <button onClick={() => onRemove(i)} className="text-slate-300 hover:text-red-400">x</button>
                 </td>
               </tr>
             ))}
@@ -74,24 +86,28 @@ function ItemsTable({ rows, onAdd, onRemove, onChange, itemOptions = [], salesMo
   )
 }
 
-const emptyRow = () => ({ itemName: '', itemCode: '', quantity: '', unit: '', rate: '', amount: '' })
-
 export default function DCFormPage({ type }) {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ dcDate: getTodayDate() })
+  const isSalesDC = type === 'Sales DC'
+  const [form, setForm] = useState({
+    dcDate: getTodayDate(),
+    status: 'Open',
+    modeOfTransport: 'By Road',
+  })
   const [rows, setRows] = useState([emptyRow()])
   const [customers, setCustomers] = useState([])
   const [items, setItems] = useState([])
-  const [loadingMasters, setLoadingMasters] = useState(type === 'Sales DC')
+  const [loadingMasters, setLoadingMasters] = useState(isSalesDC)
   const [saving, setSaving] = useState(false)
+  const [loadingRecord, setLoadingRecord] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
-  const bind = (k) => ({ value: form[k] || '', onChange: e => set(k, e.target.value) })
+  const set = (key, value) => setForm((current) => ({ ...current, [key]: value }))
+  const bind = (key) => ({ value: form[key] || '', onChange: (event) => set(key, event.target.value) })
 
   useEffect(() => {
-    if (type !== 'Sales DC') return
+    if (!isSalesDC) return
 
     async function loadMasters() {
       try {
@@ -110,7 +126,48 @@ export default function DCFormPage({ type }) {
     }
 
     loadMasters()
-  }, [type])
+  }, [isSalesDC])
+
+  useEffect(() => {
+    if (!isSalesDC || !id) return
+
+    async function loadSalesDC() {
+      try {
+        setLoadingRecord(true)
+        setError('')
+        const result = await getSalesDCById(id)
+        setForm({
+          dcNumber: result.dc_no || '',
+          dcDate: result.dc_date || getTodayDate(),
+          party: String(result.customer?.id || ''),
+          referenceNumber: result.reference_no || '',
+          vehicleNo: result.vehicle_no || '',
+          modeOfTransport: result.mode_of_transport || 'By Road',
+          status: result.status || 'Open',
+          remarks: result.remarks || '',
+        })
+        setRows(
+          result.items?.length
+            ? result.items.map((row) => ({
+                itemName: row.item_name || '',
+                itemCode: String(row.item_id || ''),
+                hsnCode: row.hsn_code || '',
+                quantity: row.qty || '',
+                unit: row.uom || '',
+                rate: row.sales_rate || '',
+                amount: row.amount || '',
+              }))
+            : [emptyRow()]
+        )
+      } catch (loadError) {
+        setError(loadError.message || 'Unable to load Sales DC record.')
+      } finally {
+        setLoadingRecord(false)
+      }
+    }
+
+    loadSalesDC()
+  }, [id, isSalesDC])
 
   const customerOptions = useMemo(
     () => customers.map((customer) => ({
@@ -128,35 +185,54 @@ export default function DCFormPage({ type }) {
     [items]
   )
 
+  const totalQty = rows.reduce((sum, row) => sum + Number(row.quantity || 0), 0).toFixed(2)
+  const totalAmount = rows.reduce((sum, row) => sum + Number(row.amount || 0), 0).toFixed(2)
+
   async function handleSave() {
-    if (type !== 'Sales DC') {
+    if (!isSalesDC) {
       alert('Saved!')
       return
     }
 
-    const firstRow = rows[0] || {}
-    if (!form.dcNumber || !form.dcDate || !form.party || !firstRow.itemCode || !firstRow.quantity) {
+    const cleanRows = rows.filter((row) => row.itemCode && Number(row.quantity || 0) > 0)
+    if (!form.dcNumber || !form.dcDate || !form.party || cleanRows.length === 0) {
       setSuccess('')
-      setError('DC Number, DC Date, Customer, Item, and Qty are required.')
+      setError('DC Number, DC Date, Customer, and at least one item row are required.')
       return
+    }
+
+    const payload = {
+      dcNumber: form.dcNumber,
+      dcDate: form.dcDate,
+      customerId: Number(form.party),
+      referenceNumber: form.referenceNumber || '',
+      vehicleNo: form.vehicleNo || '',
+      modeOfTransport: form.modeOfTransport || '',
+      status: form.status || 'Open',
+      remarks: form.remarks || '',
+      items: cleanRows.map((row) => ({
+        itemId: Number(row.itemCode),
+        qty: row.quantity,
+      })),
     }
 
     try {
       setSaving(true)
       setError('')
       setSuccess('')
-      const result = await createSalesDC({
-        dcNumber: form.dcNumber,
-        dcDate: form.dcDate,
-        customerId: Number(form.party),
-        referenceNumber: form.referenceNumber || '',
-        remarks: form.remarks || '',
-        itemId: Number(firstRow.itemCode),
-        qty: firstRow.quantity,
-      })
-      setSuccess(`Sales DC saved. ID: ${result.salesDc?.id ?? '-'} | Stock left: ${result.stock?.new_balance ?? '-'}`)
-      setForm({ dcDate: getTodayDate() })
-      setRows([emptyRow()])
+      const result = id
+        ? await updateSalesDC(id, payload)
+        : await createSalesDC(payload)
+
+      setSuccess(`${type} saved. ID: ${result.salesDc?.id ?? '-'} | Total Qty: ${result.summary?.total_qty ?? '-'}`)
+      if (!id) {
+        setForm({
+          dcDate: getTodayDate(),
+          status: 'Open',
+          modeOfTransport: 'By Road',
+        })
+        setRows([emptyRow()])
+      }
     } catch (saveError) {
       setError(saveError.message || 'Unable to save Sales DC.')
     } finally {
@@ -169,12 +245,23 @@ export default function DCFormPage({ type }) {
       title={id ? `Edit ${type}` : `New ${type}`}
       subtitle={`${type} details`}
       actions={
-        <ActionButtons
-          onSave={handleSave}
-          onCancel={() => navigate(-1)}
-          onDelete={id ? () => navigate(-1) : undefined}
-          loading={saving}
-        />
+        <div className="flex items-center gap-2">
+          {isSalesDC && id && (
+            <button
+              onClick={() => window.open(`/sales/dc/${id}/print`, '_blank', 'noopener,noreferrer')}
+              className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+            >
+              <Printer size={14} />
+              Print
+            </button>
+          )}
+          <ActionButtons
+            onSave={handleSave}
+            onCancel={() => navigate(-1)}
+            onDelete={id ? () => navigate(-1) : undefined}
+            loading={saving}
+          />
+        </div>
       }
     >
       {error && (
@@ -187,24 +274,31 @@ export default function DCFormPage({ type }) {
           {success}
         </div>
       )}
-      {loadingMasters && (
+      {(loadingMasters || loadingRecord) && (
         <div style={{ marginBottom: '16px', padding: '12px 14px', borderRadius: '10px', background: '#eef2ff', color: '#4338ca', fontSize: '13px', fontWeight: '700' }}>
-          Loading {type} masters...
+          Loading {type} data...
         </div>
       )}
+
       <SectionCard title="DC Information" icon={FileText}>
         <FormGrid>
-          <FormInput label="DC Number" required {...bind('dcNumber')} placeholder="DC-0001" />
+          <FormInput label="DC Number" required {...bind('dcNumber')} placeholder="SODC-0001" />
           <DatePicker label="DC Date" required {...bind('dcDate')} />
           <SelectDropdown
-            label="Customer / Supplied"
-            options={type === 'Sales DC' ? customerOptions : ['Maruti Suzuki', 'Tata Motors', 'Mahindra', 'Bajaj Auto', 'Tata Steel', 'Hindalco']}
+            label="Customer"
+            options={isSalesDC ? customerOptions : ['Maruti Suzuki', 'Tata Motors', 'Mahindra', 'Bajaj Auto', 'Tata Steel', 'Hindalco']}
             {...bind('party')}
           />
           <FormInput label="Reference Number" {...bind('referenceNumber')} />
+          <FormInput label="Vehicle No" {...bind('vehicleNo')} placeholder="KA51AB2241" />
+          <SelectDropdown
+            label="Mode Of Transport"
+            options={['By Road', 'By Air', 'By Rail', 'Courier', 'Hand Delivery']}
+            {...bind('modeOfTransport')}
+          />
           <SelectDropdown
             label="Status"
-            options={['Draft', 'Pending', 'Approved', 'Completed']}
+            options={['Open', 'Draft', 'Pending', 'Approved', 'Completed']}
             {...bind('status')}
           />
         </FormGrid>
@@ -213,37 +307,49 @@ export default function DCFormPage({ type }) {
       <SectionCard title="Item Details" icon={List}>
         <ItemsTable
           rows={rows}
-          onAdd={() => setRows(r => [...r, emptyRow()])}
-          onRemove={(i) => setRows(r => r.filter((_, ri) => ri !== i))}
+          onAdd={() => setRows((current) => [...current, emptyRow()])}
+          onRemove={(index) => setRows((current) => current.filter((_, rowIndex) => rowIndex !== index))}
           itemOptions={itemOptions}
-          salesMode={type === 'Sales DC'}
-          onChange={(i, k, v) => {
-            if (type !== 'Sales DC') {
-              setRows(r => r.map((row, ri) => ri === i ? { ...row, [k]: v } : row))
+          salesMode={isSalesDC}
+          onChange={(index, key, value) => {
+            if (!isSalesDC) {
+              setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, [key]: value } : row))
               return
             }
 
             setRows((current) =>
-              current.map((row, ri) => {
-                if (ri !== i) return row
-                const nextRow = { ...row, [k]: v }
-                if (k === 'itemCode') {
-                  const matched = items.find((item) => String(item.id) === v)
+              current.map((row, rowIndex) => {
+                if (rowIndex !== index) return row
+                const nextRow = { ...row, [key]: value }
+
+                if (key === 'itemCode') {
+                  const matched = items.find((item) => String(item.id) === value)
                   nextRow.itemName = matched?.item_name || ''
                   nextRow.unit = matched?.uom || ''
                   nextRow.rate = matched?.sales_rate || ''
+                  nextRow.hsnCode = matched?.hsn_code || ''
                 }
-                if (k === 'quantity' || k === 'rate' || k === 'itemCode') {
+
+                if (key === 'quantity' || key === 'rate' || key === 'itemCode') {
                   const qty = Number(nextRow.quantity || 0)
                   const rate = Number(nextRow.rate || 0)
                   nextRow.amount = qty && rate ? String((qty * rate).toFixed(2)) : ''
                 }
+
                 return nextRow
               })
             )
           }}
         />
-        {type === 'Sales DC' && (
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+            Total Qty: <span className="text-slate-900">{totalQty}</span>
+          </div>
+          <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+            Total Amount: <span className="text-slate-900">Rs.{totalAmount}</span>
+          </div>
+        </div>
+        {isSalesDC && (
           <div style={{ marginTop: '12px', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>
             Sales DC uses current item sales rate and will reduce stock after save.
           </div>

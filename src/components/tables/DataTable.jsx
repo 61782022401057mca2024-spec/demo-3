@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Filter, MoreVertical, Eye, Edit2, Trash2, Plus } from 'lucide-react'
+import { Search, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Edit2, Trash2, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import clsx from 'clsx'
 
@@ -12,6 +12,7 @@ export default function DataTable({
   addLabel = 'Add New',
   rowPath,      // function(row) => path for view/edit
   onDelete,
+  rowActions,
   extraActions,
 }) {
   const [search, setSearch] = useState('')
@@ -102,7 +103,7 @@ export default function DataTable({
                   </div>
                 </th>
               ))}
-              <th className="table-th w-24 text-center">Actions</th>
+              <th className="table-th w-32 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -126,6 +127,37 @@ export default function DataTable({
                         <Edit2 size={13} />
                       </Link>
                     )}
+                    {rowActions?.map((action) => {
+                      const icon = action.icon
+                      const Icon = icon
+                      const classes = action.className || 'p-1.5 rounded-md hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors'
+
+                      if (action.to) {
+                        return (
+                          <Link
+                            key={action.key}
+                            to={typeof action.to === 'function' ? action.to(row) : action.to}
+                            target={action.target}
+                            rel={action.target === '_blank' ? 'noreferrer' : undefined}
+                            className={classes}
+                            title={action.label}
+                          >
+                            <Icon size={13} />
+                          </Link>
+                        )
+                      }
+
+                      return (
+                        <button
+                          key={action.key}
+                          onClick={() => action.onClick?.(row)}
+                          className={classes}
+                          title={action.label}
+                        >
+                          <Icon size={13} />
+                        </button>
+                      )
+                    })}
                     {onDelete && (
                       <button
                         onClick={() => onDelete(row)}

@@ -3,6 +3,7 @@ import { PageContainer, StatusBadge } from '../../components/ui/index'
 import DataTable from '../../components/tables/DataTable'
 import { getSaleInvoices, getTaxInvoices } from '../../lib/api'
 import { MOCK_INVOICES } from '../../data/mockData'
+import { Printer } from 'lucide-react'
 
 const COLUMNS = [
   { key: 'invoiceNumber', label: 'Invoice No.', width: 130 },
@@ -17,6 +18,19 @@ function InvoiceListPage({ type, basePath }) {
   const [data, setData] = useState(dbBacked ? [] : MOCK_INVOICES)
   const [loading, setLoading] = useState(dbBacked)
   const [error, setError] = useState('')
+
+  const rowActions = type === 'Tax Invoice' || type === 'Sale Invoice'
+    ? [
+        {
+          key: 'print',
+          label: `Print ${type}`,
+          icon: Printer,
+          to: (row) => `${basePath}/${row.id}/print`,
+          target: '_blank',
+          className: 'p-1.5 rounded-md hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 transition-colors',
+        },
+      ]
+    : []
 
   useEffect(() => {
     if (!dbBacked) return
@@ -64,6 +78,7 @@ function InvoiceListPage({ type, basePath }) {
         addPath={`${basePath}/new`}
         addLabel={`New ${type}`}
         rowPath={basePath}
+        rowActions={rowActions}
       />
     </PageContainer>
   )

@@ -3,7 +3,7 @@ import { PageContainer, StatusBadge } from '../../components/ui/index'
 import DataTable from '../../components/tables/DataTable'
 import { getPurchaseInwards } from '../../lib/api'
 
-const COLUMNS = [
+const BASE_COLUMNS = [
   { key: 'inwardNo', label: 'Inward No', width: 130 },
   { key: 'inwardDate', label: 'Date', width: 120 },
   { key: 'itemCode', label: 'Item Code', width: 120 },
@@ -26,6 +26,11 @@ export default function PurchasePage({
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const columns = BASE_COLUMNS.filter((column) => {
+    if (inwardType === 'PO' && (column.key === 'customer' || column.key === 'status')) return false
+    if ((inwardType === 'LO' || inwardType === 'JO') && column.key === 'status') return false
+    return true
+  })
 
   useEffect(() => {
     async function loadPurchases() {
@@ -72,7 +77,7 @@ export default function PurchasePage({
         </div>
       )}
       <DataTable
-        columns={COLUMNS}
+        columns={columns}
         data={data}
         addPath={`${basePath}/new`}
         addLabel={addLabel}

@@ -3,6 +3,7 @@ import { PageContainer, StatusBadge } from '../../components/ui/index'
 import DataTable from '../../components/tables/DataTable'
 import { MOCK_DC } from '../../data/mockData'
 import { getSalesDCs } from '../../lib/api'
+import { Printer } from 'lucide-react'
 
 const COLUMNS = [
   { key: 'dcNumber', label: 'DC Number', width: 130 },
@@ -17,6 +18,29 @@ export default function DCListPage({ type, basePath }) {
   const [data, setData] = useState(MOCK_DC)
   const [loading, setLoading] = useState(type === 'Sales DC')
   const [error, setError] = useState('')
+  const rowActions = type === 'Sales DC'
+    ? [
+        {
+          key: 'print',
+          label: 'Print Sales DC',
+          icon: Printer,
+          to: (row) => `${basePath}/${row.id}/print`,
+          target: '_blank',
+          className: 'p-1.5 rounded-md hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 transition-colors',
+        },
+      ]
+    : type === 'Labour DC'
+      ? [
+          {
+            key: 'print',
+            label: 'Print Labour DC',
+            icon: Printer,
+            to: (row) => `${basePath}/${row.id}/print`,
+            target: '_blank',
+            className: 'p-1.5 rounded-md hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 transition-colors',
+          },
+        ]
+      : []
 
   useEffect(() => {
     if (type !== 'Sales DC') return
@@ -32,8 +56,8 @@ export default function DCListPage({ type, basePath }) {
             dcNumber: row.dc_no,
             dcDate: row.dc_date,
             customer: row.customer_name || '-',
-            referenceNumber: row.item_code || '-',
-            amount: row.amount ?? 0,
+            referenceNumber: row.reference_no || '-',
+            amount: row.total_amount ?? 0,
             status: row.status || 'Open',
           }))
         )
@@ -65,6 +89,7 @@ export default function DCListPage({ type, basePath }) {
         addPath={`${basePath}/new`}
         addLabel={`New ${type}`}
         rowPath={basePath}
+        rowActions={rowActions}
         onDelete={(row) => { if (confirm(`Delete ${row.dcNumber}?`)) setData(d => d.filter(r => r.id !== row.id)) }}
       />
     </PageContainer>

@@ -73,15 +73,15 @@ const COMBINED_COLUMNS = [
 
 const PAGE_CONFIG = {
   customer: {
-    title: 'View Customer',
-    subtitle: 'View all customer details correctly from the database',
+    title: 'Customer',
+    subtitle: 'Existing customer list with create option',
     addPath: '/master/customer',
     addLabel: 'Create Customer',
     columns: CUSTOMER_COLUMNS,
   },
   supplier: {
-    title: 'View Supplier',
-    subtitle: 'View all supplier details correctly from the database',
+    title: 'Supplier',
+    subtitle: 'Existing supplier list with create option',
     addPath: '/master/supplier',
     addLabel: 'Create Supplier',
     columns: SUPPLIER_COLUMNS,

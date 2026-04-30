@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import ItemMasterForm from '../../components/forms/ItemMasterForm'
 
-export default function CustomerFormPage() {
+export default function CustomerSuppliedFormPage() {
   const { id } = useParams()
   return (
     <ItemMasterForm

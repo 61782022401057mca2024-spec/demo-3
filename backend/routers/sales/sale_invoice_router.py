@@ -1,4 +1,3 @@
-
 from decimal import Decimal
 from typing import Optional
 
@@ -63,6 +62,71 @@ def list_sale_invoices():
             """
         )
         return cursor.fetchall()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    finally:
+        cursor.close()
+        connection.close()
+
+
+@router.get("/{invoice_id}")
+def get_sale_invoice(invoice_id: int):
+    connection = _connection_or_500()
+    cursor = connection.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        cursor.execute(
+            """
+            SELECT
+                si.id,
+                si.invoice_no,
+                si.invoice_date,
+                si.customer_id,
+                si.sales_dc_id,
+                si.subtotal,
+                si.gst_amount,
+                si.total_amount,
+                si.status,
+                si.remarks,
+                c.customer_code,
+                c.customer_name,
+                c.address,
+                c.city,
+                c.state,
+                c.pincode,
+                c.phone,
+                c.mobile,
+                c.email,
+                c.gstin,
+                c.payment_terms,
+                c.transport_mode,
+                sdc.dc_no,
+                sii.item_id,
+                sii.qty,
+                sii.rate,
+                sii.tax_percent,
+                sii.amount,
+                i.item_code,
+                i.item_name,
+                i.uom,
+                i.hsn_code
+            FROM sale_invoices si
+            JOIN customers c ON c.id = si.customer_id
+            LEFT JOIN sales_dc sdc ON sdc.id = si.sales_dc_id
+            JOIN sale_invoice_items sii ON sii.sale_invoice_id = si.id
+            JOIN items i ON i.id = sii.item_id
+            WHERE si.id = %s
+            ORDER BY sii.id ASC
+            LIMIT 1
+            """,
+            (invoice_id,),
+        )
+        row = cursor.fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail="Sale invoice not found")
+        return row
+    except HTTPException:
+        raise
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     finally:
@@ -193,11 +257,11 @@ def delete_sale_invoice(invoice_id: int):
         connection.commit()
 
         return {
-            "message": "Sale invoice deleted successfully",
-            "invoice": {
-                "id": invoice["id"],
-                "invoice_no": invoice["invoice_no"],
-            },
+          "message": "Sale invoice deleted successfully",
+          "invoice": {
+              "id": invoice["id"],
+              "invoice_no": invoice["invoice_no"],
+          },
         }
     except HTTPException:
         connection.rollback()

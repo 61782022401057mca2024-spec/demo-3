@@ -147,6 +147,7 @@ export default function ItemMasterForm({
 
     try {
       const result = await createItem({
+        itemType: form.itemType || form.groupType || 'Purchase Item',
         itemCode: form.itemCode,
         itemName: form.itemName,
         printName: form.printName,
@@ -263,7 +264,7 @@ export default function ItemMasterForm({
         <SectionCard title="Item Information" icon={Info}>
           <FormGrid cols={3}>
             <SelectDropdown label="Group Type" required
-              options={['Manufacturing Item', 'Purchase Item', 'Sales Item', 'Consumable', 'Packing', 'Asset']}
+              options={['Purchase Item', 'Customer Supplied', 'Manufacturing Item']}
               {...bind('groupType')} />
             <FormInput label="Item Code" required {...bind('itemCode')} placeholder="ITM-0001" />
             <SelectDropdown label="Item Group"

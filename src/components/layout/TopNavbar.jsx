@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { NAV_MENU } from '../../data/navConfig'
-import { Search, Bell, ChevronDown, ChevronRight, Menu, X, Factory, User, LogOut, Settings } from 'lucide-react'
+import { Search, Bell, ChevronDown, ChevronRight, Menu, X, User, LogOut, Settings } from 'lucide-react'
+import logo from '../../assets/ar-precision-logo.svg'
+
 import { clearAuth, getStoredUser } from '../../lib/api'
 
 /* ── Color tokens ────────────────────────────────────────────────────────── */
@@ -403,12 +405,19 @@ export default function TopNavbar() {
         <div className="erp-topbar">
           <div className="erp-topbar-inner">
             <Link to="/dashboard" className="erp-logo">
-              <div className="erp-logo-icon"><Factory size={18} color="#fff" /></div>
+              <div className="erp-logo-icon">
+                <img
+                  src={logo}
+                  alt="AR Precision"
+                  style={{ width: '26px', height: '26px', objectFit: 'contain' }}
+                />
+              </div>
               <div>
-                <span className="erp-logo-name">ManufactERP</span>
+                <span className="erp-logo-name">AR Precision</span>
                 <span className="erp-logo-sub">Enterprise System</span>
               </div>
             </Link>
+
             <div className="erp-divider" />
             <div className="erp-search-wrap">
               <Search size={14} className="erp-search-icon" />

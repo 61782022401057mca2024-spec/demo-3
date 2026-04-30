@@ -24,6 +24,7 @@ export default function PurchaseFormPage({
   const [suppliers, setSuppliers] = useState([])
   const [customers, setCustomers] = useState([])
   const [items, setItems] = useState([])
+  const showCustomerField = inwardType !== 'PO'
   const [form, setForm] = useState({
     inwardNo: '',
     inwardDate: todayValue(),
@@ -111,7 +112,7 @@ export default function PurchaseFormPage({
         inwardNo: form.inwardNo,
         inwardDate: form.inwardDate,
         supplierId: Number(form.supplierId),
-        customerId: form.customerId ? Number(form.customerId) : null,
+        customerId: showCustomerField && form.customerId ? Number(form.customerId) : null,
         invoiceNo: form.invoiceNo,
         vehicleNo: form.vehicleNo,
         itemId: Number(form.itemId),
@@ -166,7 +167,9 @@ export default function PurchaseFormPage({
           <FormInput label="Inward No" required value={form.inwardNo} onChange={(e) => updateField('inwardNo', e.target.value)} placeholder={`${numberPrefix}-0001`} />
           <FormInput label="Inward Date" required type="date" value={form.inwardDate} onChange={(e) => updateField('inwardDate', e.target.value)} />
           <SelectDropdown label="Supplier" required value={form.supplierId} onChange={(e) => updateField('supplierId', e.target.value)} options={supplierOptions} placeholder="Select supplier" />
-          <SelectDropdown label="Customer (Optional)" value={form.customerId} onChange={(e) => updateField('customerId', e.target.value)} options={customerOptions} placeholder="Select customer" />
+          {showCustomerField && (
+            <SelectDropdown label="Customer (Optional)" value={form.customerId} onChange={(e) => updateField('customerId', e.target.value)} options={customerOptions} placeholder="Select customer" />
+          )}
           <FormInput label="Invoice No" value={form.invoiceNo} onChange={(e) => updateField('invoiceNo', e.target.value)} placeholder="Supplier invoice no" />
           <FormInput label="Vehicle No" value={form.vehicleNo} onChange={(e) => updateField('vehicleNo', e.target.value)} placeholder="TN-00-AB-1234" />
         </FormGrid>

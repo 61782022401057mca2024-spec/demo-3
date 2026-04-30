@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS suppliers (
 
 CREATE TABLE IF NOT EXISTS items (
     id BIGSERIAL PRIMARY KEY,
+    item_type VARCHAR(50) DEFAULT 'Purchase Item',
     item_code VARCHAR(50) NOT NULL UNIQUE,
     item_name VARCHAR(200) NOT NULL,
     print_name VARCHAR(200),
@@ -148,6 +149,9 @@ CREATE TABLE IF NOT EXISTS sales_dc (
     dc_no VARCHAR(50) NOT NULL UNIQUE,
     dc_date DATE NOT NULL DEFAULT CURRENT_DATE,
     customer_id BIGINT NOT NULL REFERENCES customers(id),
+    reference_no VARCHAR(100),
+    vehicle_no VARCHAR(50),
+    mode_of_transport VARCHAR(50),
     remarks TEXT,
     status VARCHAR(30) DEFAULT 'Draft',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
