@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, MapPin, FileText, CreditCard, Phone, Save, Home, Plus, Trash2 } from 'lucide-react'
 import { createCustomer, getCustomers } from '../../lib/api'
 
-/* ─── Shared Field Components ───────────────────────────────────────────── */
+/* â”€â”€â”€ Shared Field Components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Label({ text, required }) {
   return (
     <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#0f4c81', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>
@@ -51,7 +51,7 @@ function Checkbox({ label, checked, onChange }) {
       <div onClick={() => onChange(!checked)} style={{
         width: '18px', height: '18px', borderRadius: '5px', flexShrink: 0, cursor: 'pointer',
         border: checked ? 'none' : '2px solid rgba(79,172,254,0.35)',
-        background: checked ? '#8F6593' : 'rgba(255,255,255,0.9)',
+        background: checked ? '#3b82f6' : 'rgba(255,255,255,0.9)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         {checked && <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
@@ -61,7 +61,7 @@ function Checkbox({ label, checked, onChange }) {
   )
 }
 
-/* ─── Section Card ───────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Section Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Section({ title, icon: Icon, color, children }) {
   return (
     <div style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', borderRadius: '14px', border: '1px solid #d7e8ff', boxShadow: '0 4px 20px rgba(59,130,246,0.10)', marginBottom: '20px', overflow: 'hidden' }}>
@@ -84,7 +84,7 @@ const GST_STATES = ['01-Jammu & Kashmir','02-Himachal Pradesh','03-Punjab','04-C
 const PAYMENT_TERMS = ['Immediate','7 Days','15 Days','30 Days','45 Days','60 Days','90 Days','Against Advance','Letter of Credit']
 const CURRENCIES = ['INR - Indian Rupee','USD - US Dollar','EUR - Euro','GBP - British Pound','AED - UAE Dirham']
 
-/* ─── Contact Row ────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Contact Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function ContactRow({ contact, onChange, onRemove, index }) {
   const set = (k, v) => onChange({ ...contact, [k]: v })
   return (
@@ -100,7 +100,7 @@ function ContactRow({ contact, onChange, onRemove, index }) {
   )
 }
 
-/* ─── Bank Row ───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Bank Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function BankRow({ bank, onChange, onRemove }) {
   const set = (k, v) => onChange({ ...bank, [k]: v })
   return (
@@ -117,7 +117,7 @@ function BankRow({ bank, onChange, onRemove }) {
   )
 }
 
-/* ─── Add Row Button ─────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Add Row Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function AddRowBtn({ label, onClick }) {
   return (
     <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', fontSize: '12px', fontWeight: '700', border: '1.5px dashed rgba(59,130,246,0.42)', borderRadius: '8px', background: 'rgba(59,130,246,0.06)', color: '#0f5cab', cursor: 'pointer', marginTop: '4px' }}
@@ -129,7 +129,7 @@ function AddRowBtn({ label, onClick }) {
   )
 }
 
-/* ─── Main Page ──────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function CustomerCreationPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
@@ -235,11 +235,11 @@ export default function CustomerCreationPage() {
               <h1 style={{ fontSize: '20px', fontWeight: '800', margin: 0, background: 'linear-gradient(135deg, #0f5cab 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Sora,sans-serif' }}>
                 Customer Creation
               </h1>
-              <p style={{ fontSize: '13px', color: '#475569', margin: 0, marginTop: '2px', fontWeight: '600' }}>Master → Customer</p>
+              <p style={{ fontSize: '13px', color: '#475569', margin: 0, marginTop: '2px', fontWeight: '600' }}>Master â†’ Customer</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 18px', fontSize: '13px', fontWeight: '700', border: '1.5px solid #c9a8cc', borderRadius: '10px', background: 'rgba(255,255,255,0.9)', color: '#334155', cursor: 'pointer' }}
+            <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 18px', fontSize: '13px', fontWeight: '700', border: '1.5px solid #c9dfff', borderRadius: '10px', background: 'rgba(255,255,255,0.9)', color: '#334155', cursor: 'pointer' }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(219,238,255,0.5)'}
               onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.9)'}
             ><Home size={14} /> Back</button>
@@ -261,7 +261,7 @@ export default function CustomerCreationPage() {
           </div>
         )}
 
-        {/* ── 1. Basic Information ───────────────────────────────────────── */}
+        {/* â”€â”€ 1. Basic Information â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Section title="Basic Information" icon={Users}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <Input label="Customer Code" required {...bind('customerCode')} placeholder="Auto / Manual code" />
@@ -286,7 +286,7 @@ export default function CustomerCreationPage() {
           </div>
         </Section>
 
-        {/* ── 2. Address ────────────────────────────────────────────────── */}
+        {/* â”€â”€ 2. Address â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Section title="Address Details" icon={MapPin}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <div style={{ gridColumn: 'span 2' }}>
@@ -300,7 +300,7 @@ export default function CustomerCreationPage() {
           </div>
         </Section>
 
-        {/* ── 3. Contact Information ────────────────────────────────────── */}
+        {/* â”€â”€ 3. Contact Information â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Section title="Contact Information" icon={Phone}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px', marginBottom: '16px' }}>
             <Input label="Phone" {...bind('phone')} placeholder="Office landline" />
@@ -316,7 +316,7 @@ export default function CustomerCreationPage() {
           <AddRowBtn label="Add Contact Person" onClick={addContact} />
         </Section>
 
-        {/* ── 4. Statutory / Tax ───────────────────────────────────────── */}
+        {/* â”€â”€ 4. Statutory / Tax â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Section title="Statutory & Tax" icon={FileText}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <Select label="GST Registration Type" value={form.gstType} onChange={e => set('gstType', e.target.value)}
@@ -335,18 +335,18 @@ export default function CustomerCreationPage() {
           </div>
         </Section>
 
-        {/* ── 5. Financial / Credit ─────────────────────────────────────── */}
+        {/* â”€â”€ 5. Financial / Credit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Section title="Financial & Credit" icon={CreditCard}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <Select label="Currency" value={form.currency} onChange={e => set('currency', e.target.value)} options={CURRENCIES} />
             <Select label="Payment Terms" value={form.paymentTerms} onChange={e => set('paymentTerms', e.target.value)} options={PAYMENT_TERMS} />
-            <Input label="Credit Limit (₹)" {...bind('creditLimit')} placeholder="0.00" type="number" />
+            <Input label="Credit Limit (â‚¹)" {...bind('creditLimit')} placeholder="0.00" type="number" />
             <Input label="Credit Days" {...bind('creditDays')} placeholder="30" type="number" />
             <Input label="Discount %" {...bind('discount')} placeholder="0.00" type="number" />
             <Input label="Ledger Group" {...bind('ledgerGroup')} placeholder="Sundry Debtors" />
             <div style={{ display: 'flex', gap: '10px' }}>
               <div style={{ flex: 1 }}>
-                <Input label="Opening Balance (₹)" {...bind('openingBalance')} placeholder="0.00" type="number" />
+                <Input label="Opening Balance (â‚¹)" {...bind('openingBalance')} placeholder="0.00" type="number" />
               </div>
               <div style={{ width: '80px' }}>
                 <Select label="Dr / Cr" value={form.openingBalanceType} onChange={e => set('openingBalanceType', e.target.value)} options={['Dr','Cr']} />
@@ -364,7 +364,7 @@ export default function CustomerCreationPage() {
           </div>
         </Section>
 
-        {/* ── 6. Logistics ──────────────────────────────────────────────── */}
+        {/* â”€â”€ 6. Logistics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <Section title="Logistics & Delivery" icon={MapPin}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <Select label="Transport Mode" value={form.transportMode} onChange={e => set('transportMode', e.target.value)}
@@ -386,12 +386,12 @@ export default function CustomerCreationPage() {
               No customer records found.
             </div>
           ) : (
-            <div style={{ overflowX: 'auto', borderRadius: '10px', border: '1px solid #eaddec' }}>
+            <div style={{ overflowX: 'auto', borderRadius: '10px', border: '1px solid #d7e8ff' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                 <thead>
-                  <tr style={{ background: '#f8f1f8' }}>
+                  <tr style={{ background: '#eff6ff' }}>
                     {['Code', 'Name', 'Group', 'Type', 'City', 'Mobile', 'Email', 'GSTIN', 'Status'].map((label) => (
-                      <th key={label} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', fontWeight: '800', color: '#6b4b70', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #eaddec', whiteSpace: 'nowrap' }}>
+                      <th key={label} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', fontWeight: '800', color: '#0f4c81', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #d7e8ff', whiteSpace: 'nowrap' }}>
                         {label}
                       </th>
                     ))}
@@ -399,7 +399,7 @@ export default function CustomerCreationPage() {
                 </thead>
                 <tbody>
                   {customers.map((customer) => (
-                    <tr key={customer.id} style={{ borderTop: '1px solid #f3e8f4' }}>
+                    <tr key={customer.id} style={{ borderTop: '1px solid #e0efff' }}>
                       <td style={{ padding: '10px 12px', color: '#334155', fontWeight: '700' }}>{customer.customer_code || '-'}</td>
                       <td style={{ padding: '10px 12px', color: '#334155' }}>{customer.customer_name || '-'}</td>
                       <td style={{ padding: '10px 12px', color: '#475569' }}>{customer.customer_group || '-'}</td>
@@ -419,7 +419,7 @@ export default function CustomerCreationPage() {
 
         {/* Bottom Actions */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingBottom: '32px' }}>
-          <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', fontSize: '13px', fontWeight: '700', border: '1.5px solid #c9a8cc', borderRadius: '10px', background: 'rgba(255,255,255,0.9)', color: '#334155', cursor: 'pointer' }}>
+          <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', fontSize: '13px', fontWeight: '700', border: '1.5px solid #c9dfff', borderRadius: '10px', background: 'rgba(255,255,255,0.9)', color: '#334155', cursor: 'pointer' }}>
             <Home size={14} /> Back
           </button>
           <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 26px', fontSize: '13px', fontWeight: '700', border: 'none', borderRadius: '10px', background: 'linear-gradient(135deg, #0f5cab 0%, #3b82f6 100%)', color: '#fff', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, boxShadow: '0 4px 14px rgba(79,172,254,0.35)' }}>
@@ -431,3 +431,4 @@ export default function CustomerCreationPage() {
     </>
   )
 }
+

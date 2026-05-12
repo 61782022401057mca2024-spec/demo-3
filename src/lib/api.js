@@ -102,6 +102,34 @@ export function getPurchaseInvoiceNos({ inwardType = '', supplierId = '', query 
   return request(`/purchase-inward/invoice-nos${suffix}`)
 }
 
+export function getNextInwardInspectionNumber() {
+  return request('/quality/inward-inspection/next-number')
+}
+
+export function getInwardInspectionSources(inwardType) {
+  const suffix = inwardType ? `?inward_type=${encodeURIComponent(inwardType)}` : ''
+  return request(`/quality/inward-inspection/source${suffix}`)
+}
+
+export function getInwardInspectionSourceDetail(purchaseInwardId) {
+  return request(`/quality/inward-inspection/source/${purchaseInwardId}`)
+}
+
+export function getInwardInspections() {
+  return request('/quality/inward-inspection')
+}
+
+export function getInwardInspectionById(id) {
+  return request(`/quality/inward-inspection/${id}`)
+}
+
+export function createInwardInspection(payload) {
+  return request('/quality/inward-inspection', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
 export function getDashboardSummary() {
   return request('/dashboard/summary')
 }

@@ -13,12 +13,6 @@ router = APIRouter()
 
 SECRET_KEY = os.getenv("AUTH_SECRET_KEY", "change_me_to_a_long_random_secret")
 ALGORITHM = "HS256"
-DEFAULT_ADMIN_NAME = "Admin"
-DEFAULT_ADMIN_EMAIL = "admin@arprecision.in"
-DEFAULT_ADMIN_PHONE = "9999999999"
-DEFAULT_ADMIN_PASSWORD = "AR@2026"
-
-
 class RegisterPayload(BaseModel):
     full_name: str
     phone_number: str
@@ -106,32 +100,6 @@ def _backfill_company_users(cursor, company_id: int):
     )
 
 
-def _seed_default_admin(cursor, company_id: int):
-    cursor.execute(
-        """
-        SELECT id
-        FROM users
-        WHERE company_id = %s
-        ORDER BY id ASC
-        LIMIT 1
-        """,
-        (company_id,),
-    )
-    existing_user = cursor.fetchone()
-    if existing_user:
-        return False
-
-    password_hash = bcrypt.hashpw(DEFAULT_ADMIN_PASSWORD.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-    cursor.execute(
-        """
-        INSERT INTO users (company_id, full_name, phone_number, email, password_hash, role, is_company_head, is_active)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """,
-        (company_id, DEFAULT_ADMIN_NAME, DEFAULT_ADMIN_PHONE, DEFAULT_ADMIN_EMAIL, password_hash, "admin", True, True),
-    )
-    return True
-
-
 def _get_company_user_count(cursor, company_id: int):
     cursor.execute("SELECT COUNT(*) AS total FROM users WHERE company_id = %s", (company_id,))
     row = cursor.fetchone()
@@ -184,7 +152,60 @@ def _decode_token(authorization: str | None):
 
 @router.post("/register")
 def register_user(payload: RegisterPayload):
-    raise HTTPException(status_code=403, detail="Direct signup disabled. Login with admin and create users from Master > Users")
+    if payload.password != payload.confirm_password:
+        raise HTTPException(status_code=400, detail="Passwords do not match")
+
+    if len(payload.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+
+    if len(payload.phone_number) != 10 or not payload.phone_number.isdigit():
+        raise HTTPException(status_code=400, detail="Invalid phone number")
+
+    connection = _connection_or_500()
+    cursor = connection.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        _ensure_users_table(cursor)
+        company = _ensure_company_row(cursor)
+        _backfill_company_users(cursor, company["id"])
+
+        company_user_count = _get_company_user_count(cursor, company["id"])
+        if company_user_count >= 2:
+            raise HTTPException(status_code=400, detail="Demo user limit reached")
+
+        is_company_head = company_user_count == 0
+        role = "company_head" if is_company_head else "user"
+        password_hash = bcrypt.hashpw(payload.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        cursor.execute(
+            """
+            INSERT INTO users (company_id, full_name, phone_number, email, password_hash, role, is_company_head, is_active)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id, company_id, full_name, phone_number, email, role, is_company_head, is_active
+            """,
+            (company["id"], payload.full_name, payload.phone_number, payload.email, password_hash, role, is_company_head, True),
+        )
+        created_user = cursor.fetchone()
+        connection.commit()
+
+        token = _create_token(created_user["id"], created_user["email"])
+        return {
+            "message": "Signup successful",
+            "token": token,
+            "user": created_user,
+        }
+    except HTTPException:
+        connection.rollback()
+        raise
+    except Exception as exc:
+        connection.rollback()
+        error = str(exc).lower()
+        if "users_email_key" in error or "duplicate key" in error:
+            raise HTTPException(status_code=400, detail="Email already exists") from exc
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    finally:
+        cursor.close()
+        connection.close()
 
 
 @router.post("/login")
@@ -196,9 +217,6 @@ def login_user(payload: LoginPayload):
         _ensure_users_table(cursor)
         company = _ensure_company_row(cursor)
         _backfill_company_users(cursor, company["id"])
-        seeded = _seed_default_admin(cursor, company["id"])
-        if seeded:
-            connection.commit()
         cursor.execute(
             """
             SELECT id, company_id, full_name, phone_number, email, password_hash, role, is_company_head, is_active
@@ -251,9 +269,6 @@ def get_current_user(authorization: str | None = Header(default=None)):
         _ensure_users_table(cursor)
         company = _ensure_company_row(cursor)
         _backfill_company_users(cursor, company["id"])
-        seeded = _seed_default_admin(cursor, company["id"])
-        if seeded:
-            connection.commit()
         user = _get_user_by_id(cursor, payload["user_id"])
         if user is None:
             raise HTTPException(status_code=404, detail="User not found")
@@ -277,9 +292,6 @@ def list_company_users(authorization: str | None = Header(default=None)):
         _ensure_users_table(cursor)
         company = _ensure_company_row(cursor)
         _backfill_company_users(cursor, company["id"])
-        seeded = _seed_default_admin(cursor, company["id"])
-        if seeded:
-            connection.commit()
         current_user = _get_user_by_id(cursor, payload["user_id"])
         if current_user is None:
             raise HTTPException(status_code=404, detail="User not found")
@@ -327,9 +339,6 @@ def create_company_user(payload: RegisterPayload, authorization: str | None = He
         _ensure_users_table(cursor)
         company = _ensure_company_row(cursor)
         _backfill_company_users(cursor, company["id"])
-        seeded = _seed_default_admin(cursor, company["id"])
-        if seeded:
-            connection.commit()
         current_user = _get_user_by_id(cursor, token_payload["user_id"])
         if current_user is None:
             raise HTTPException(status_code=404, detail="User not found")

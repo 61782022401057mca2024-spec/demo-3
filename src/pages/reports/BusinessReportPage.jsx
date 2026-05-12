@@ -159,6 +159,29 @@ const REPORT_META = {
       ['status', 'Status'],
     ],
   },
+  'inward-inspection': {
+    title: 'Inward Inspection Report',
+    subtitle: 'Quality inward inspection summary with accepted, rejected, and rework quantities',
+    columns: [
+      ['inspection_no', 'Inspection No'],
+      ['inspection_date', 'Inspection Date'],
+      ['inward_type', 'Inward Type'],
+      ['company_name', 'Company Name'],
+      ['inward_no', 'Inward No'],
+      ['invoice_no', 'Invoice No'],
+      ['item_code', 'Item Code'],
+      ['item_name', 'Item Name'],
+      ['received_qty', 'Received Qty'],
+      ['accepted_qty', 'Accepted Qty'],
+      ['rejected_qty', 'Rejected Qty'],
+      ['rework_qty', 'Rework Qty'],
+      ['testing', 'Testing'],
+      ['location', 'Location'],
+      ['batch_number', 'Batch Number'],
+      ['remark', 'Remark'],
+      ['status', 'Status'],
+    ],
+  },
 }
 
 function formatValue(key, value) {

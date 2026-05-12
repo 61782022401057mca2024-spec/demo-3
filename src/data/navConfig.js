@@ -24,6 +24,7 @@ export const NAV_MENU = [
               { label: 'Manufacturing Item', path: '/inventory/items/manufacturing' },
             ],
           },
+          { label: 'Stock Details', path: '/reports/inventory' },
         ],
       },
       {
@@ -38,6 +39,7 @@ export const NAV_MENU = [
         icon: Beaker,
         children: [
           { label: 'Item Group', path: '/quality/item-group' },
+          { label: 'Inward Inspection', path: '/quality/inward-inspection' },
         ],
       },
       {

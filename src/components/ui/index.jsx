@@ -242,6 +242,7 @@ export function StatusBadge({ status }) {
     Rejected: 'badge-red',
     Draft: 'badge-gray',
     Completed: 'badge-blue',
+    'Inspection Done': 'badge-blue',
   }
   return <span className={clsx('badge', map[status] || 'badge-gray')}>{status}</span>
 }

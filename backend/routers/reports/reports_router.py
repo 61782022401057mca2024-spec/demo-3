@@ -689,6 +689,96 @@ def _fetch_customer_supplied_rows():
     }
 
 
+def _fetch_inward_inspection_rows():
+    connection = _connection_or_500()
+    cursor = connection.cursor(cursor_factory=RealDictCursor)
+
+    try:
+        cursor.execute(
+            """
+            SELECT
+                ii.id,
+                ii.inspection_no,
+                ii.inspection_date,
+                ii.inward_type,
+                ii.company_name,
+                ii.inward_no,
+                ii.invoice_no,
+                ii.status,
+                iii.item_id,
+                i.item_code,
+                i.item_name,
+                iii.received_qty,
+                iii.accepted_qty,
+                iii.rejected_qty,
+                iii.rework_qty,
+                iii.testing,
+                iii.location,
+                iii.batch_number,
+                iii.remark
+            FROM inward_inspections ii
+            JOIN inward_inspection_items iii ON iii.inspection_id = ii.id
+            JOIN items i ON i.id = iii.item_id
+            ORDER BY ii.id DESC, iii.id ASC
+            """
+        )
+        rows = cursor.fetchall()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    finally:
+        cursor.close()
+        connection.close()
+
+    total_received = Decimal("0")
+    total_accepted = Decimal("0")
+    total_rejected = Decimal("0")
+    total_rework = Decimal("0")
+    inspection_ids = set()
+    normalized = []
+
+    for row in rows:
+        received_qty = _decimal(row["received_qty"])
+        accepted_qty = _decimal(row["accepted_qty"])
+        rejected_qty = _decimal(row["rejected_qty"])
+        rework_qty = _decimal(row["rework_qty"])
+        total_received += received_qty
+        total_accepted += accepted_qty
+        total_rejected += rejected_qty
+        total_rework += rework_qty
+        inspection_ids.add(row["id"])
+
+        normalized.append(
+            {
+                "id": row["id"],
+                "inspection_no": row["inspection_no"],
+                "inspection_date": row["inspection_date"],
+                "inward_type": row["inward_type"] or "-",
+                "company_name": row["company_name"] or "-",
+                "inward_no": row["inward_no"] or "-",
+                "invoice_no": row["invoice_no"] or "-",
+                "item_code": row["item_code"] or "-",
+                "item_name": row["item_name"] or "-",
+                "received_qty": float(received_qty),
+                "accepted_qty": float(accepted_qty),
+                "rejected_qty": float(rejected_qty),
+                "rework_qty": float(rework_qty),
+                "testing": row["testing"] or "-",
+                "location": row["location"] or "-",
+                "batch_number": row["batch_number"] or "-",
+                "remark": row["remark"] or "-",
+                "status": row["status"] or "-",
+            }
+        )
+
+    return normalized, {
+        "total_inspections": Decimal(str(len(inspection_ids))),
+        "received_qty": total_received,
+        "accepted_qty": total_accepted,
+        "rejected_qty": total_rejected,
+        "rework_qty": total_rework,
+    }
+
+
 REPORT_FETCHERS = {
     "inventory": _fetch_inventory_rows,
     "inward": _fetch_inward_rows,
@@ -701,6 +791,7 @@ REPORT_FETCHERS = {
     "rejection": _fetch_rejection_rows,
     "supplier-performance": _fetch_supplier_performance_rows,
     "customer-supplied": _fetch_customer_supplied_rows,
+    "inward-inspection": _fetch_inward_inspection_rows,
 }
 
 

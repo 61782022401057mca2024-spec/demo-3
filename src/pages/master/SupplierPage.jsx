@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Truck, MapPin, FileText, CreditCard, Phone, Save, Home, Plus, Trash2, Package } from 'lucide-react'
 import { createSupplier } from '../../lib/api'
@@ -305,7 +305,7 @@ export default function SupplierCreationPage() {
               <h1 style={{ fontSize: '20px', fontWeight: '800', margin: 0, background: 'linear-gradient(135deg, #0f5cab 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Sora,sans-serif' }}>
                 Supplier Creation
               </h1>
-              <p style={{ fontSize: '13px', color: '#475569', margin: 0, marginTop: '2px', fontWeight: '600' }}>Master → Supplier</p>
+              <p style={{ fontSize: '13px', color: '#475569', margin: 0, marginTop: '2px', fontWeight: '600' }}>Master â†’ Supplier</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -446,3 +446,4 @@ export default function SupplierCreationPage() {
     </>
   )
 }
+
