@@ -1,7 +1,7 @@
-# 1. HTTP -> HTTPS Redirect for all subdomains
+# 1. HTTP -> HTTPS Redirect & Certbot Challenge
 server {
     listen 80;
-    server_name zygertechnology.in stable.zygertechnology.in staging.zygertechnology.in;
+    server_name zygertechnology.in;
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
@@ -12,59 +12,57 @@ server {
     }
 }
 
-# 2. ROOT REDIRECT (zygertechnology.in -> stable.zygertechnology.in)
+# 2. MAIN HTTPS SERVER
 server {
     listen 443 ssl;
     server_name zygertechnology.in;
 
+    # SSL Certificate Paths
     ssl_certificate /etc/letsencrypt/live/zygertechnology.in/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/zygertechnology.in/privkey.pem;
 
-    return 301 https://stable.zygertechnology.in$request_uri;
-}
+    # Security & Redirect Fixes
+    absolute_redirect off;
+    port_in_redirect off;
 
-# 3. STABLE ENVIRONMENT (ar-precision)
-server {
-    listen 443 ssl;
-    server_name stable.zygertechnology.in;
-
-    ssl_certificate /etc/letsencrypt/live/zygertechnology.in/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/zygertechnology.in/privkey.pem;
-
-    # Frontend Files for ar-precision
+    # Frontend Files
     location / {
         root /usr/share/nginx/html;
         index index.html;
         try_files $uri $uri/ /index.html;
     }
 
-    # Backend API for ar-precision
+    # Backend API Proxy
     location /api/ {
+        # Must match the service name in docker-compose.yml
         proxy_pass http://backend:8000/; 
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_redirect off;
     }
 }
-
-# 4. STAGING / DEMO ENVIRONMENT (demo-1)
+# 3. STAGING / DEMO SERVER (Routing to the other docker project)
 server {
     listen 443 ssl;
-    server_name staging.zygertechnology.in;
+    server_name demo.zygertechnology.in;
 
     ssl_certificate /etc/letsencrypt/live/zygertechnology.in/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/zygertechnology.in/privkey.pem;
 
+    # Route to the demo frontend container
     location / {
-        proxy_pass http://zyger-demo-frontend:80;
+        proxy_pass http://zyger-demo-frontend:80; 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # Route to the demo backend container
     location /api/ {
         proxy_pass http://zyger-demo-backend:8000/;
         proxy_set_header Host $host;

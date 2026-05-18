@@ -15,8 +15,6 @@ class TaxInvoicePayload(BaseModel):
     invoiceDate: str
     customerId: int
     salesDcId: Optional[int] = None
-    addressType: Optional[str] = "billing"
-    invoiceAddress: Optional[str] = None
     itemId: int
     qty: str
     rate: str
@@ -30,35 +28,6 @@ def _connection_or_500():
     if connection is None:
         raise HTTPException(status_code=500, detail="Database connection failed")
     return connection
-
-
-def _ensure_tax_invoice_columns(cursor):
-    cursor.execute("ALTER TABLE tax_invoices ADD COLUMN IF NOT EXISTS address_type VARCHAR(30) DEFAULT 'billing'")
-    cursor.execute("ALTER TABLE tax_invoices ADD COLUMN IF NOT EXISTS invoice_address TEXT")
-
-
-def _resolve_invoice_address(cursor, customer_id: int, address_type: str | None, invoice_address: str | None):
-    cursor.execute(
-        """
-        SELECT address, delivery_address, city, state, pincode
-        FROM customers
-        WHERE id = %s
-        """,
-        (customer_id,),
-    )
-    customer = cursor.fetchone()
-    if customer is None:
-        raise HTTPException(status_code=404, detail="Customer not found")
-
-    selected_type = (address_type or "billing").lower()
-    billing_address = ", ".join(filter(None, [customer["address"], customer["city"], customer["state"], customer["pincode"]]))
-    delivery_address = customer["delivery_address"] or billing_address
-
-    if selected_type == "delivery":
-        return "delivery", delivery_address
-    if selected_type == "custom":
-        return "custom", (invoice_address or "").strip() or billing_address
-    return "billing", billing_address
 
 
 def _validate_tax_invoice_refs(cursor, data):
@@ -82,7 +51,6 @@ def list_tax_invoices():
     cursor = connection.cursor(cursor_factory=RealDictCursor)
 
     try:
-        _ensure_tax_invoice_columns(cursor)
         cursor.execute(
             """
             SELECT
@@ -122,7 +90,6 @@ def get_tax_invoice(invoice_id: int):
     cursor = connection.cursor(cursor_factory=RealDictCursor)
 
     try:
-        _ensure_tax_invoice_columns(cursor)
         cursor.execute(
             """
             SELECT
@@ -131,8 +98,6 @@ def get_tax_invoice(invoice_id: int):
                 ti.invoice_date,
                 ti.customer_id,
                 ti.sales_dc_id,
-                ti.address_type,
-                ti.invoice_address,
                 ti.subtotal,
                 ti.gst_amount,
                 ti.total_amount,
@@ -198,22 +163,15 @@ def create_tax_invoice(payload: TaxInvoicePayload):
     total_amount = subtotal + gst_amount
 
     try:
-        _ensure_tax_invoice_columns(cursor)
         _validate_tax_invoice_refs(cursor, data)
-        address_type, resolved_invoice_address = _resolve_invoice_address(
-            cursor,
-            data["customerId"],
-            data.get("addressType"),
-            data.get("invoiceAddress"),
-        )
 
         cursor.execute(
             """
             INSERT INTO tax_invoices (
-                invoice_no, invoice_date, customer_id, sales_dc_id, address_type, invoice_address,
+                invoice_no, invoice_date, customer_id, sales_dc_id,
                 subtotal, gst_amount, total_amount, status, remarks
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id, invoice_no, invoice_date, total_amount, status
             """,
             (
@@ -221,8 +179,6 @@ def create_tax_invoice(payload: TaxInvoicePayload):
                 data["invoiceDate"],
                 data["customerId"],
                 data["salesDcId"],
-                address_type,
-                resolved_invoice_address,
                 subtotal,
                 gst_amount,
                 total_amount,
@@ -294,18 +250,11 @@ def update_tax_invoice(invoice_id: int, payload: TaxInvoicePayload):
     total_amount = subtotal + gst_amount
 
     try:
-        _ensure_tax_invoice_columns(cursor)
         cursor.execute("SELECT id FROM tax_invoices WHERE id = %s", (invoice_id,))
         if cursor.fetchone() is None:
             raise HTTPException(status_code=404, detail="Tax invoice not found")
 
         _validate_tax_invoice_refs(cursor, data)
-        address_type, resolved_invoice_address = _resolve_invoice_address(
-            cursor,
-            data["customerId"],
-            data.get("addressType"),
-            data.get("invoiceAddress"),
-        )
 
         cursor.execute(
             """
@@ -315,8 +264,6 @@ def update_tax_invoice(invoice_id: int, payload: TaxInvoicePayload):
                 invoice_date = %s,
                 customer_id = %s,
                 sales_dc_id = %s,
-                address_type = %s,
-                invoice_address = %s,
                 subtotal = %s,
                 gst_amount = %s,
                 total_amount = %s,
@@ -330,8 +277,6 @@ def update_tax_invoice(invoice_id: int, payload: TaxInvoicePayload):
                 data["invoiceDate"],
                 data["customerId"],
                 data["salesDcId"],
-                address_type,
-                resolved_invoice_address,
                 subtotal,
                 gst_amount,
                 total_amount,
@@ -345,7 +290,12 @@ def update_tax_invoice(invoice_id: int, payload: TaxInvoicePayload):
         cursor.execute(
             """
             UPDATE tax_invoice_items
-            SET item_id = %s, qty = %s, rate = %s, tax_percent = %s, amount = %s
+            SET
+                item_id = %s,
+                qty = %s,
+                rate = %s,
+                tax_percent = %s,
+                amount = %s
             WHERE tax_invoice_id = %s
             RETURNING id
             """,
@@ -415,7 +365,10 @@ def delete_tax_invoice(invoice_id: int):
 
         return {
             "message": "Tax invoice deleted successfully",
-            "invoice": invoice,
+            "invoice": {
+                "id": invoice["id"],
+                "invoice_no": invoice["invoice_no"],
+            },
         }
     except HTTPException:
         connection.rollback()
