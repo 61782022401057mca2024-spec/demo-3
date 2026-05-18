@@ -10,10 +10,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/sql/init_app.sql:/docker-entrypoint-initdb.d/init_app.sql:ro
-    ports:
-      - "5436:5432"
-    networks:
-      - ar-precision_default
 
   backend:
     build:
@@ -25,16 +21,14 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      DB_HOST: zyger-demo-postgres
+      DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: zyger_erp_demo
       DB_USER: postgres
       DB_PASSWORD: 12345
       AUTH_SECRET_KEY: zyger_erp_demo_secure_secret_2026
-    ports:
-      - "8001:8000"
-    networks:
-      - ar-precision_default
+    expose:
+      - "8000"
 
   frontend:
     build:
@@ -46,15 +40,38 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
-    # We keep 8081 for internal testing, but the Gateway will hit port 80
+    expose:
+      - "80"
+
+  nginx:
+    image: nginx:alpine
+    container_name: zyger-demo-nginx
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
     ports:
-      - "127.0.0.1:8081:80" 
-    networks:
-      - ar-precision_default
+      - "8082:80"
+      - "8443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: zyger-demo-certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    entrypoint: /bin/sh -c
+    command: >
+      "trap exit TERM;
+      while :;
+      do
+        certbot renew --webroot -w /var/www/certbot;
+        sleep 12h & wait $${!};
+      done"
 
 volumes:
   postgres_data:
-
-networks:
-  ar-precision_default:
-    external: true
