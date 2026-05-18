@@ -1,17 +1,17 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Users, MapPin, FileText, CreditCard, Phone, Save, Home, Plus, Trash2 } from 'lucide-react'
 import { createCustomer, getCustomers } from '../../lib/api'
 
-/* â”€â”€â”€ Shared Field Components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Shared Field Components ───────────────────────────────────────────── */
 function Label({ text, required }) {
   return (
-    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#0f4c81', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>
+    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#5C3D61', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '5px' }}>
       {text}{required && <span style={{ color: '#ef4444', marginLeft: '3px' }}>*</span>}
     </label>
   )
 }
-const inputBase = { width: '100%', padding: '9px 12px', fontSize: '13px', fontWeight: '600', border: '1.5px solid rgba(59,130,246,0.24)', borderRadius: '8px', outline: 'none', color: '#0f172a', background: 'rgba(255,255,255,0.96)', transition: 'border-color 0.15s, box-shadow 0.15s', fontFamily: 'inherit' }
+const inputBase = { width: '100%', padding: '9px 12px', fontSize: '13px', fontWeight: '600', border: '1.5px solid rgba(143,101,147,0.22)', borderRadius: '8px', outline: 'none', color: '#0f172a', background: 'rgba(255,255,255,0.9)', transition: 'border-color 0.15s, box-shadow 0.15s', fontFamily: 'inherit' }
 const focusStyle = (e) => { e.target.style.borderColor = '#4facfe'; e.target.style.boxShadow = '0 0 0 3px rgba(79,172,254,0.15)' }
 const blurStyle  = (e) => { e.target.style.borderColor = 'rgba(79,172,254,0.22)'; e.target.style.boxShadow = 'none' }
 
@@ -51,21 +51,21 @@ function Checkbox({ label, checked, onChange }) {
       <div onClick={() => onChange(!checked)} style={{
         width: '18px', height: '18px', borderRadius: '5px', flexShrink: 0, cursor: 'pointer',
         border: checked ? 'none' : '2px solid rgba(79,172,254,0.35)',
-        background: checked ? '#3b82f6' : 'rgba(255,255,255,0.9)',
+        background: checked ? '#8F6593' : 'rgba(255,255,255,0.9)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         {checked && <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4L4 7.5L10 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
       </div>
-      <span style={{ fontSize: '13px', fontWeight: '600', color: '#0f4c81' }}>{label}</span>
+      <span style={{ fontSize: '13px', fontWeight: '600', color: '#5C3D61' }}>{label}</span>
     </label>
   )
 }
 
-/* â”€â”€â”€ Section Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Section Card ───────────────────────────────────────────────────────── */
 function Section({ title, icon: Icon, color, children }) {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(12px)', borderRadius: '14px', border: '1px solid #d7e8ff', boxShadow: '0 4px 20px rgba(59,130,246,0.10)', marginBottom: '20px', overflow: 'hidden' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '13px 20px', background: 'linear-gradient(135deg, #0f5cab 0%, #3b82f6 100%)' }}>
+    <div style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', borderRadius: '14px', border: '1px solid #e4d4e6', boxShadow: '0 4px 20px rgba(143,101,147,0.08)', marginBottom: '20px', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '13px 20px', background: '#8F6593' }}>
         <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Icon size={15} color="#fff" />
         </div>
@@ -84,11 +84,11 @@ const GST_STATES = ['01-Jammu & Kashmir','02-Himachal Pradesh','03-Punjab','04-C
 const PAYMENT_TERMS = ['Immediate','7 Days','15 Days','30 Days','45 Days','60 Days','90 Days','Against Advance','Letter of Credit']
 const CURRENCIES = ['INR - Indian Rupee','USD - US Dollar','EUR - Euro','GBP - British Pound','AED - UAE Dirham']
 
-/* â”€â”€â”€ Contact Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Contact Row ────────────────────────────────────────────────────────── */
 function ContactRow({ contact, onChange, onRemove, index }) {
   const set = (k, v) => onChange({ ...contact, [k]: v })
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 36px', gap: '10px', alignItems: 'end', padding: '12px', background: 'rgba(59,130,246,0.05)', borderRadius: '10px', marginBottom: '8px', border: '1px solid rgba(59,130,246,0.12)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 36px', gap: '10px', alignItems: 'end', padding: '12px', background: 'rgba(143,101,147,0.04)', borderRadius: '10px', marginBottom: '8px', border: '1px solid rgba(143,101,147,0.1)' }}>
       <Input label="Contact Name" value={contact.name} onChange={e => set('name', e.target.value)} placeholder="Full name" />
       <Input label="Designation" value={contact.designation} onChange={e => set('designation', e.target.value)} placeholder="Manager / Director" />
       <Input label="Mobile" value={contact.mobile} onChange={e => set('mobile', e.target.value)} placeholder="+91 00000 00000" />
@@ -100,11 +100,11 @@ function ContactRow({ contact, onChange, onRemove, index }) {
   )
 }
 
-/* â”€â”€â”€ Bank Row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Bank Row ───────────────────────────────────────────────────────────── */
 function BankRow({ bank, onChange, onRemove }) {
   const set = (k, v) => onChange({ ...bank, [k]: v })
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 36px', gap: '10px', alignItems: 'end', padding: '12px', background: 'rgba(59,130,246,0.05)', borderRadius: '10px', marginBottom: '8px', border: '1px solid rgba(59,130,246,0.12)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 36px', gap: '10px', alignItems: 'end', padding: '12px', background: 'rgba(143,101,147,0.04)', borderRadius: '10px', marginBottom: '8px', border: '1px solid rgba(143,101,147,0.1)' }}>
       <Input label="Bank Name" value={bank.bankName} onChange={e => set('bankName', e.target.value)} placeholder="Bank name" />
       <Input label="Account No" value={bank.accountNo} onChange={e => set('accountNo', e.target.value)} placeholder="Account number" />
       <Input label="IFSC Code" value={bank.ifsc} onChange={e => set('ifsc', e.target.value)} placeholder="XXXXXXXXXX" />
@@ -117,10 +117,10 @@ function BankRow({ bank, onChange, onRemove }) {
   )
 }
 
-/* â”€â”€â”€ Add Row Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Add Row Button ─────────────────────────────────────────────────────── */
 function AddRowBtn({ label, onClick }) {
   return (
-    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', fontSize: '12px', fontWeight: '700', border: '1.5px dashed rgba(59,130,246,0.42)', borderRadius: '8px', background: 'rgba(59,130,246,0.06)', color: '#0f5cab', cursor: 'pointer', marginTop: '4px' }}
+    <button onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', fontSize: '12px', fontWeight: '700', border: '1.5px dashed rgba(143,101,147,0.4)', borderRadius: '8px', background: 'rgba(143,101,147,0.05)', color: '#8F6593', cursor: 'pointer', marginTop: '4px' }}
       onMouseEnter={e => e.currentTarget.style.background = 'rgba(79,172,254,0.12)'}
       onMouseLeave={e => e.currentTarget.style.background = 'rgba(79,172,254,0.05)'}
     >
@@ -129,7 +129,7 @@ function AddRowBtn({ label, onClick }) {
   )
 }
 
-/* â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Main Page ──────────────────────────────────────────────────────────── */
 export default function CustomerCreationPage() {
   const navigate = useNavigate()
   const [saving, setSaving] = useState(false)
@@ -228,22 +228,22 @@ export default function CustomerCreationPage() {
         {/* Page Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #0f5cab 0%, #3b82f6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(79,172,254,0.35)' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#8F6593', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(79,172,254,0.35)' }}>
               <Users size={20} color="#fff" />
             </div>
             <div>
-              <h1 style={{ fontSize: '20px', fontWeight: '800', margin: 0, background: 'linear-gradient(135deg, #0f5cab 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Sora,sans-serif' }}>
+              <h1 style={{ fontSize: '20px', fontWeight: '800', margin: 0, background: '#8F6593', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontFamily: 'Sora,sans-serif' }}>
                 Customer Creation
               </h1>
-              <p style={{ fontSize: '13px', color: '#475569', margin: 0, marginTop: '2px', fontWeight: '600' }}>Master â†’ Customer</p>
+              <p style={{ fontSize: '13px', color: '#475569', margin: 0, marginTop: '2px', fontWeight: '600' }}>Master → Customer</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 18px', fontSize: '13px', fontWeight: '700', border: '1.5px solid #c9dfff', borderRadius: '10px', background: 'rgba(255,255,255,0.9)', color: '#334155', cursor: 'pointer' }}
+            <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 18px', fontSize: '13px', fontWeight: '700', border: '1.5px solid #c9a8cc', borderRadius: '10px', background: 'rgba(255,255,255,0.9)', color: '#334155', cursor: 'pointer' }}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(219,238,255,0.5)'}
               onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.9)'}
             ><Home size={14} /> Back</button>
-            <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 22px', fontSize: '13px', fontWeight: '700', border: 'none', borderRadius: '10px', background: 'linear-gradient(135deg, #0f5cab 0%, #3b82f6 100%)', color: '#fff', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, boxShadow: '0 4px 14px rgba(79,172,254,0.35)' }}>
+            <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '9px 22px', fontSize: '13px', fontWeight: '700', border: 'none', borderRadius: '10px', background: '#8F6593', color: '#fff', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, boxShadow: '0 4px 14px rgba(79,172,254,0.35)' }}>
               <Save size={14} /> {saving ? 'Saving...' : 'Save Customer'}
             </button>
           </div>
@@ -261,7 +261,7 @@ export default function CustomerCreationPage() {
           </div>
         )}
 
-        {/* â”€â”€ 1. Basic Information â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── 1. Basic Information ───────────────────────────────────────── */}
         <Section title="Basic Information" icon={Users}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <Input label="Customer Code" required {...bind('customerCode')} placeholder="Auto / Manual code" />
@@ -286,7 +286,7 @@ export default function CustomerCreationPage() {
           </div>
         </Section>
 
-        {/* â”€â”€ 2. Address â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── 2. Address ────────────────────────────────────────────────── */}
         <Section title="Address Details" icon={MapPin}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <div style={{ gridColumn: 'span 2' }}>
@@ -300,7 +300,7 @@ export default function CustomerCreationPage() {
           </div>
         </Section>
 
-        {/* â”€â”€ 3. Contact Information â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── 3. Contact Information ────────────────────────────────────── */}
         <Section title="Contact Information" icon={Phone}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px', marginBottom: '16px' }}>
             <Input label="Phone" {...bind('phone')} placeholder="Office landline" />
@@ -309,14 +309,14 @@ export default function CustomerCreationPage() {
             <Input label="Website" {...bind('website')} placeholder="https://www.customer.com" />
             <Input label="Fax" {...bind('fax')} placeholder="Fax number" />
           </div>
-          <p style={{ fontSize: '11px', fontWeight: '700', color: '#0f5cab', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 10px' }}>Contact Persons</p>
+          <p style={{ fontSize: '11px', fontWeight: '700', color: '#8F6593', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 10px' }}>Contact Persons</p>
           {contacts.map((c, i) => (
             <ContactRow key={i} index={i} contact={c} onChange={v => updateContact(i, v)} onRemove={() => removeContact(i)} />
           ))}
           <AddRowBtn label="Add Contact Person" onClick={addContact} />
         </Section>
 
-        {/* â”€â”€ 4. Statutory / Tax â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── 4. Statutory / Tax ───────────────────────────────────────── */}
         <Section title="Statutory & Tax" icon={FileText}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <Select label="GST Registration Type" value={form.gstType} onChange={e => set('gstType', e.target.value)}
@@ -335,18 +335,18 @@ export default function CustomerCreationPage() {
           </div>
         </Section>
 
-        {/* â”€â”€ 5. Financial / Credit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── 5. Financial / Credit ─────────────────────────────────────── */}
         <Section title="Financial & Credit" icon={CreditCard}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <Select label="Currency" value={form.currency} onChange={e => set('currency', e.target.value)} options={CURRENCIES} />
             <Select label="Payment Terms" value={form.paymentTerms} onChange={e => set('paymentTerms', e.target.value)} options={PAYMENT_TERMS} />
-            <Input label="Credit Limit (â‚¹)" {...bind('creditLimit')} placeholder="0.00" type="number" />
+            <Input label="Credit Limit (₹)" {...bind('creditLimit')} placeholder="0.00" type="number" />
             <Input label="Credit Days" {...bind('creditDays')} placeholder="30" type="number" />
             <Input label="Discount %" {...bind('discount')} placeholder="0.00" type="number" />
             <Input label="Ledger Group" {...bind('ledgerGroup')} placeholder="Sundry Debtors" />
             <div style={{ display: 'flex', gap: '10px' }}>
               <div style={{ flex: 1 }}>
-                <Input label="Opening Balance (â‚¹)" {...bind('openingBalance')} placeholder="0.00" type="number" />
+                <Input label="Opening Balance (₹)" {...bind('openingBalance')} placeholder="0.00" type="number" />
               </div>
               <div style={{ width: '80px' }}>
                 <Select label="Dr / Cr" value={form.openingBalanceType} onChange={e => set('openingBalanceType', e.target.value)} options={['Dr','Cr']} />
@@ -356,7 +356,7 @@ export default function CustomerCreationPage() {
 
           {/* Bank Details */}
           <div style={{ marginTop: '20px' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#0f5cab', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 10px' }}>Bank Details</p>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#8F6593', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 10px' }}>Bank Details</p>
             {banks.map((b, i) => (
               <BankRow key={i} bank={b} onChange={v => updateBank(i, v)} onRemove={() => removeBank(i)} />
             ))}
@@ -364,7 +364,7 @@ export default function CustomerCreationPage() {
           </div>
         </Section>
 
-        {/* â”€â”€ 6. Logistics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ── 6. Logistics ──────────────────────────────────────────────── */}
         <Section title="Logistics & Delivery" icon={MapPin}>
           <div className="g3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '16px' }}>
             <Select label="Transport Mode" value={form.transportMode} onChange={e => set('transportMode', e.target.value)}
@@ -386,12 +386,12 @@ export default function CustomerCreationPage() {
               No customer records found.
             </div>
           ) : (
-            <div style={{ overflowX: 'auto', borderRadius: '10px', border: '1px solid #d7e8ff' }}>
+            <div style={{ overflowX: 'auto', borderRadius: '10px', border: '1px solid #eaddec' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                 <thead>
-                  <tr style={{ background: '#eff6ff' }}>
+                  <tr style={{ background: '#f8f1f8' }}>
                     {['Code', 'Name', 'Group', 'Type', 'City', 'Mobile', 'Email', 'GSTIN', 'Status'].map((label) => (
-                      <th key={label} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', fontWeight: '800', color: '#0f4c81', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #d7e8ff', whiteSpace: 'nowrap' }}>
+                      <th key={label} style={{ padding: '10px 12px', textAlign: 'left', fontSize: '11px', fontWeight: '800', color: '#6b4b70', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #eaddec', whiteSpace: 'nowrap' }}>
                         {label}
                       </th>
                     ))}
@@ -399,7 +399,7 @@ export default function CustomerCreationPage() {
                 </thead>
                 <tbody>
                   {customers.map((customer) => (
-                    <tr key={customer.id} style={{ borderTop: '1px solid #e0efff' }}>
+                    <tr key={customer.id} style={{ borderTop: '1px solid #f3e8f4' }}>
                       <td style={{ padding: '10px 12px', color: '#334155', fontWeight: '700' }}>{customer.customer_code || '-'}</td>
                       <td style={{ padding: '10px 12px', color: '#334155' }}>{customer.customer_name || '-'}</td>
                       <td style={{ padding: '10px 12px', color: '#475569' }}>{customer.customer_group || '-'}</td>
@@ -419,10 +419,10 @@ export default function CustomerCreationPage() {
 
         {/* Bottom Actions */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', paddingBottom: '32px' }}>
-          <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', fontSize: '13px', fontWeight: '700', border: '1.5px solid #c9dfff', borderRadius: '10px', background: 'rgba(255,255,255,0.9)', color: '#334155', cursor: 'pointer' }}>
+          <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 20px', fontSize: '13px', fontWeight: '700', border: '1.5px solid #c9a8cc', borderRadius: '10px', background: 'rgba(255,255,255,0.9)', color: '#334155', cursor: 'pointer' }}>
             <Home size={14} /> Back
           </button>
-          <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 26px', fontSize: '13px', fontWeight: '700', border: 'none', borderRadius: '10px', background: 'linear-gradient(135deg, #0f5cab 0%, #3b82f6 100%)', color: '#fff', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, boxShadow: '0 4px 14px rgba(79,172,254,0.35)' }}>
+          <button onClick={handleSave} disabled={saving} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '10px 26px', fontSize: '13px', fontWeight: '700', border: 'none', borderRadius: '10px', background: '#8F6593', color: '#fff', cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, boxShadow: '0 4px 14px rgba(79,172,254,0.35)' }}>
             <Save size={14} /> {saving ? 'Saving...' : 'Save Customer'}
           </button>
         </div>
@@ -431,4 +431,3 @@ export default function CustomerCreationPage() {
     </>
   )
 }
-

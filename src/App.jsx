@@ -34,9 +34,6 @@ import RejectionReportPage   from './pages/rejection/RejectionReportPage'
 import RejectionFormPage     from './pages/rejection/RejectionFormPage'
 import UOMPage               from './pages/planning/UOMPage'
 import ItemGroupPage         from './pages/quality/ItemGroupPage'
-import InwardInspectionPage  from './pages/quality/InwardInspectionPage'
-import InwardInspectionFormPage from './pages/quality/InwardInspectionFormPage'
-import InwardInspectionDetailPage from './pages/quality/InwardInspectionDetailPage'
 import RackPage              from './pages/maintenance/RackPage'
 import BinPage               from './pages/maintenance/BinPage'
 import ReportsPage           from './pages/reports/ReportsPage'
@@ -79,7 +76,7 @@ export default function App() {
   if (authLoading) {
     return (
       <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#eef4ff', color: '#032d60', fontFamily: 'DM Sans, sans-serif', fontSize: '18px', fontWeight: '700' }}>
-        Loading Zyger ERP Demo...
+        Loading AR Precision...
       </div>
     )
   }
@@ -167,9 +164,6 @@ export default function App() {
 
         <Route path="planning/uom" element={<UOMPage />} />
         <Route path="quality/item-group" element={<ItemGroupPage />} />
-        <Route path="quality/inward-inspection" element={<InwardInspectionPage />} />
-        <Route path="quality/inward-inspection/new" element={<InwardInspectionFormPage />} />
-        <Route path="quality/inward-inspection/:id" element={<InwardInspectionDetailPage />} />
         <Route path="maintenance/rack" element={<RackPage />} />
         <Route path="maintenance/bin" element={<BinPage />} />
 
@@ -188,7 +182,6 @@ export default function App() {
         <Route path="reports/rejection" element={<BusinessReportPage reportKey="rejection" />} />
         <Route path="reports/supplier-performance" element={<BusinessReportPage reportKey="supplier-performance" />} />
         <Route path="reports/customer-supplied" element={<BusinessReportPage reportKey="customer-supplied" />} />
-        <Route path="reports/inward-inspection" element={<BusinessReportPage reportKey="inward-inspection" />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="company-info" element={<CompanyInfoPage />} />
         <Route path="master/users" element={<UserManagementPage />} />
